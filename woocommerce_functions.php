@@ -12,6 +12,14 @@ if (!function_exists('loop_columns')) {
 	}
 }
 
+// Display Woocommerce Short Product description on Catalog
+add_action('woocommerce_after_shop_loop_item_title','woocommerce_template_single_excerpt', 0);
+	function woocommerce_template_single_excerpt() { 
+		echo '<span class="title-description">';
+		echo substr(get_the_excerpt(), 0);
+		echo '</span><br />';
+}
+
 // Replaces product short description with product content
 function woocommerce_template_product_description() {
 
@@ -45,3 +53,17 @@ add_filter( 'woocommerce_output_related_products_args', 'jk_related_products_arg
 	$args['columns'] = 3; // arranged in 2 columns
 	return $args;
 }
+
+//* Display Woocommerce category on archive page
+function wc_category_title_archive_products(){
+
+    $product_cats = wp_get_post_terms( get_the_ID(), 'product_cat' );
+    if ( $product_cats && ! is_wp_error ( $product_cats ) ){
+        $single_cat = array_shift( $product_cats );
+        
+        echo '<span class="atmosphere-large-text">';
+        echo $single_cat->name;
+        echo '</span>';
+	}
+}
+add_action( 'woocommerce_before_shop_loop_item_title', 'wc_category_title_archive_products', 10 );
