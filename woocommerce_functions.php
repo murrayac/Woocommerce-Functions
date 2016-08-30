@@ -113,3 +113,23 @@ add_filter( 'rewrite_rules_array', function( $rules )
     );
     return $new_rules + $rules;
 } );
+
+// Exclude categories from my Google Product Feed
+function lw_gpf_exclude_product($excluded, $product_id, $feed_format) {
+    // Return TRUE to exclude a product, FALSE to include it, $excluded to use the default behaviour.
+    $cats = wp_get_post_terms( $product_id, 'product_cat', array( 'fields' => 'ids' ) );
+    if ( in_array( 60, $cats ) ) {
+        return TRUE;
+    }
+    if ( in_array( 63, $cats ) ) {
+        return TRUE;
+    }
+    if ( in_array( 88, $cats ) ) {
+        return TRUE;
+    }
+    if ( in_array( 89, $cats ) ) {
+        return TRUE;
+    }
+    return $excluded;
+}
+add_filter( 'woocommerce_gpf_exclude_product', 'lw_gpf_exclude_product', 11, 3);
