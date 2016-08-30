@@ -76,3 +76,30 @@ function availability_filter_func($availability)
 	$availability['availability'] = str_ireplace('Out of stock', 'Sold', $availability['availability']);
 	return $availability;
 }
+
+// Remove Pricing for category
+add_action('woocommerce_get_price_html','remove_pricing_from_category');
+
+function remove_pricing_from_category($price){
+
+	global $post, $product;
+	$terms = get_the_terms( $product->ID, 'product_cat' );
+	foreach ( $terms as $term ) $categories[] = $term->slug;	
+
+		if ( in_array( 'sold', $categories ) ) {
+			remove_action( 'woocommerce_after_shop_loop_item', 'woocommerce_template_loop_add_to_cart', 10, 2);
+			remove_action( 'woocommerce_before_add_to_cart_form', 'woocommerce_template_single_product_add_to_cart', 10, 2);
+			remove_action( 'woocommerce_single_product_summary', 'woocommerce_template_single_add_to_cart', 30 );
+			remove_action( 'init', 'woocommerce_add_to_cart_action', 10);			
+
+			return 'Item has been sold';
+		}
+
+		else {
+			add_action( 'woocommerce_after_shop_loop_item', 'woocommerce_template_loop_add_to_cart', 10, 2);
+			add_action( 'init', 'woocommerce_add_to_cart_action', 10);
+			add_action( 'init', 'woocommerce_checkout_action', 10 );
+			return $price;
+		}
+
+}
