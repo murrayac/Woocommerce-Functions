@@ -133,3 +133,74 @@ function lw_gpf_exclude_product($excluded, $product_id, $feed_format) {
     return $excluded;
 }
 add_filter( 'woocommerce_gpf_exclude_product', 'lw_gpf_exclude_product', 11, 3);
+
+// Remove add to cart button on shop page
+// remove_action( 'woocommerce_after_shop_loop_item', 'woocommerce_template_loop_add_to_cart');
+
+// Change add to cart button text
+add_filter( 'woocommerce_product_single_add_to_cart_text', 'woo_custom_cart_button_text' );    // 2.1 +
+ 
+function woo_custom_cart_button_text() {
+ 
+        return __( 'Download', 'woocommerce' );
+ 
+}
+
+// Change the add to cart text on product archives by product types
+add_filter( 'woocommerce_product_add_to_cart_text' , 'custom_woocommerce_product_add_to_cart_text' );
+/**
+ * custom_woocommerce_template_loop_add_to_cart
+*/
+function custom_woocommerce_product_add_to_cart_text() {
+	global $product;
+	
+	$product_type = $product->product_type;
+	
+	switch ( $product_type ) {
+		case 'external':
+			return __( 'Buy product', 'woocommerce' );
+		break;
+		case 'grouped':
+			return __( 'View products', 'woocommerce' );
+		break;
+		case 'simple':
+			return __( 'Download', 'woocommerce' );
+		break;
+		case 'variable':
+			return __( 'Select options', 'woocommerce' );
+		break;
+		default:
+			return __( 'Read more', 'woocommerce' );
+	}
+	
+}
+
+// Remove unwanted checkout fields if virtual product
+add_filter( 'woocommerce_checkout_fields' , 'woo_remove_billing_checkout_fields' );
+
+/**
+* Remove unwanted checkout fields
+*
+* @return $fields array
+*/
+function woo_remove_billing_checkout_fields( $fields ) {
+
+// check if the cart needs shipping
+if ( false == WC()->cart->needs_shipping() ) {
+
+// hide the billing fields
+unset($fields['billing']['billing_company']);
+unset($fields['billing']['billing_address_1']);
+unset($fields['billing']['billing_address_2']);
+unset($fields['billing']['billing_city']);
+unset($fields['billing']['billing_postcode']);
+unset($fields['billing']['billing_country']);
+unset($fields['billing']['billing_state']);
+unset($fields['billing']['billing_phone']);
+
+// hide the additional information section
+add_filter('woocommerce_enable_order_notes_field', '__return_false');
+}
+
+return $fields;
+}
